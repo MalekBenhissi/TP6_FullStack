@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Tâches</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <h1>Tâches</h1>
+
+  <!-- Formulaire pour ajouter une nouvelle tâche -->
+  <form id="addTaskForm">
+    <input type="text" id="newTaskTitle" placeholder="Nouvelle tâche" required>
+    <button type="submit">Ajouter</button>
+  </form>
+
+  <ul id="taskList">
+    <% tasks.forEach(task => { %>
+      <li data-id="<%= task.id %>">
+        <span class="<%= task.done ? 'done' : 'pending' %>"><%= task.title %></span> -
+        <% if (task.done) { %>
+          ✅ Terminée
+        <% } else { %>
+          ⏳ En cours
+        <% } %>
+        <button class="deleteBtn">Supprimer</button>
+      </li>
+    <% }) %>
+  </ul>
+
+  <a href="/">Retour à l'accueil</a>
+
+  <script>
+    // --- Ajouter une tâche ---
+    const addForm = document.getElementById('addTaskForm');
+    const taskList = document.getElementById('taskList');
+
+    addForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const title = document.getElementById('newTaskTitle').value.trim();
+      if (!title) return;
+
+      // Envoi au serveur
+      const res = await fetch('/api/tasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title })
+      });
+      const newTask = await res.json();
+
+      // Ajouter la tâche à la liste HTML
+      const li = document.createElement('li');
+      li.setAttribute('data-id', newTask.id);
+      li.innerHTML = `
+        <span class="pending">${newTask.title}</span> - ⏳ En cours
+        <button class="deleteBtn">Supprimer</button>
+      `;
+      taskList.appendChild(li);
+
+      // Reset input
+      addForm.reset();
+    });
+
+    // --- Supprimer une tâche ---
+    taskList.addEventListener('click', async (e) => {
+      if (e.target.classList.contains('deleteBtn')) {
+        const li = e.target.closest('li');
+        const taskId = li.dataset.id;
+
+        const res = await fetch(`/api/tasks/${taskId}`, { method: 'DELETE' });
+        if (res.ok) {
+          li.remove();
+        } else {
+          alert('Erreur lors de la suppression de la tâche.');
+        }
+      }
+    });
+  </script>
+</body>
+</html>
