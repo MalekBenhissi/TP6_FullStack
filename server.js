@@ -2,31 +2,25 @@ const express = require('express');
 const app = express();
 const PORT = 3000;
 
-// Middleware
 app.use(express.json());
-app.use(express.static('public')); // Sert les fichiers CSS, JS, images
+app.use(express.static('public')); 
 
-// Vue EJS
 app.set('view engine', 'ejs');
 
-// ---- Routes ----
+// routes
 
-// 1️⃣ Page d'accueil
 app.get('/', (req, res) => {
   res.render('index', { user: 'Malek Benhissi' });
 });
 
-// 2️⃣ Page About
 app.get('/about', (req, res) => {
   res.render('about', { bio: "Je suis étudiant en Full Stack et j'apprends Express.js !" });
 });
 
-// 3️⃣ Page Contact
 app.get('/contact', (req, res) => {
   res.render('contact', { email: "benhissimalek@gmail.com" });
 });
 
-// 4️⃣ Page Tasks
 let tasks = [
   { id: 1, title: 'Apprendre Express', done: false },
   { id: 2, title: 'Créer une application de démonstration', done: false },
@@ -37,7 +31,6 @@ app.get('/tasks', (req, res) => {
   res.render('tasks', { tasks });
 });
 
-// ---- API Tâches ----
 
 // GET : Récupérer toutes les tâches
 app.get('/api/tasks', (req, res) => {
@@ -81,7 +74,6 @@ app.delete('/api/tasks/:id', (req, res) => {
   res.json(deleted[0]);
 });
 
-// ---- Serveur ----
 app.listen(PORT, () => {
   console.log(`Serveur en cours d'exécution sur http://localhost:${PORT}`);
 });

@@ -13,11 +13,9 @@
     <a href="/contact">Contact</a>
   </nav>
   <h1>Tâches</h1>
-
-  <!-- Nombre total de tâches -->
   <h2>Total des tâches : <span id="taskCount"><%= tasks.length %></span></h2>
 
-  <!-- Formulaire pour ajouter une nouvelle tâche -->
+  <!-- ajouter une nouvelle tâche -->
   <form id="addTaskForm">
     <input type="text" id="newTaskTitle" placeholder="Nouvelle tâche" required>
     <button type="submit">Ajouter</button>
@@ -79,12 +77,12 @@
       addForm.reset();
     });
 
-    // --- Supprimer ou terminer une tâche ---
+    // supprimer ou terminer une tache
     taskList.addEventListener('click', async (e) => {
       const li = e.target.closest('li');
       const taskId = li.dataset.id;
 
-      // Supprimer
+      // supprimer
       if (e.target.classList.contains('deleteBtn')) {
         const res = await fetch(`/api/tasks/${taskId}`, { method: 'DELETE' });
         if (res.ok) {
@@ -95,7 +93,7 @@
         }
       }
 
-      // Marquer comme terminée
+      // Marquer comme terminee
       if (e.target.classList.contains('doneBtn')) {
         const res = await fetch(`/api/tasks/${taskId}`, {
           method: 'PUT',
