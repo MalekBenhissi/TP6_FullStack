@@ -6,7 +6,16 @@
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
+  <nav>
+    <a href="/">Accueil</a> |
+    <a href="/tasks">Tâches</a> |
+    <a href="/about">About</a> |
+    <a href="/contact">Contact</a>
+  </nav>
   <h1>Tâches</h1>
+
+  <!-- Nombre total de tâches -->
+  <h2>Total des tâches : <span id="taskCount"><%= tasks.length %></span></h2>
 
   <!-- Formulaire pour ajouter une nouvelle tâche -->
   <form id="addTaskForm">
@@ -14,6 +23,7 @@
     <button type="submit">Ajouter</button>
   </form>
 
+  <!-- Liste des tâches -->
   <ul id="taskList">
     <% tasks.forEach(task => { %>
       <li data-id="<%= task.id %>">
@@ -22,6 +32,7 @@
           ✅ Terminée
         <% } else { %>
           ⏳ En cours
+          <button class="doneBtn">Terminer</button>
         <% } %>
         <button class="deleteBtn">Supprimer</button>
       </li>
@@ -31,47 +42,73 @@
   <a href="/">Retour à l'accueil</a>
 
   <script>
-    // --- Ajouter une tâche ---
     const addForm = document.getElementById('addTaskForm');
     const taskList = document.getElementById('taskList');
+    const taskCount = document.getElementById('taskCount');
 
+    // --- Ajouter une tâche ---
     addForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const title = document.getElementById('newTaskTitle').value.trim();
       if (!title) return;
 
-      // Envoi au serveur
       const res = await fetch('/api/tasks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title })
       });
+
+      if (!res.ok) {
+        const data = await res.json();
+        alert(data.error);
+        return;
+      }
+
       const newTask = await res.json();
 
-      // Ajouter la tâche à la liste HTML
       const li = document.createElement('li');
       li.setAttribute('data-id', newTask.id);
       li.innerHTML = `
         <span class="pending">${newTask.title}</span> - ⏳ En cours
+        <button class="doneBtn">Terminer</button>
         <button class="deleteBtn">Supprimer</button>
       `;
       taskList.appendChild(li);
+      taskCount.textContent = taskList.children.length;
 
-      // Reset input
       addForm.reset();
     });
 
-    // --- Supprimer une tâche ---
+    // --- Supprimer ou terminer une tâche ---
     taskList.addEventListener('click', async (e) => {
-      if (e.target.classList.contains('deleteBtn')) {
-        const li = e.target.closest('li');
-        const taskId = li.dataset.id;
+      const li = e.target.closest('li');
+      const taskId = li.dataset.id;
 
+      // Supprimer
+      if (e.target.classList.contains('deleteBtn')) {
         const res = await fetch(`/api/tasks/${taskId}`, { method: 'DELETE' });
         if (res.ok) {
           li.remove();
+          taskCount.textContent = taskList.children.length;
         } else {
           alert('Erreur lors de la suppression de la tâche.');
+        }
+      }
+
+      // Marquer comme terminée
+      if (e.target.classList.contains('doneBtn')) {
+        const res = await fetch(`/api/tasks/${taskId}`, {
+          method: 'PUT',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ done: true })
+        });
+        if (res.ok) {
+          li.querySelector('span').className = 'done';
+          li.querySelector('span').textContent = li.querySelector('span').textContent;
+          e.target.remove(); // Supprime le bouton "Terminer"
+          li.innerHTML += ' ✅ Terminée';
+        } else {
+          alert('Erreur lors de la mise à jour de la tâche.');
         }
       }
     });

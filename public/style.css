@@ -10,7 +10,7 @@ h1 {
 }
 
 a {
-  color: #ff4500;
+  color: #972480;
   text-decoration: none;
   font-weight: bold;
 }
@@ -24,11 +24,17 @@ ul {
   padding: 0;
 }
 
-li {
-  background: white;
-  margin-bottom: 10px;
-  padding: 10px;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  color : green;
+
+.done { color: green; font-weight: bold; }
+.pending { color: gray; }
+button { margin-left: 5px; padding: 2px 6px; cursor: pointer; }
+input { padding: 5px; margin-right: 5px; }
+h2 { margin-top: 20px; }
+ul { list-style-type: none; padding: 0; }
+li { margin-bottom: 8px; }
+
+nav a {
+  margin-right: 15px;
+  font-weight: bold;
+  color: #e054bb;
 }
